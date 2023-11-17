@@ -68,19 +68,19 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: '5rem',
-  },
+  } as React.CSSProperties,
   heading: {
     margin: '0',
     lineHeight: '1.15',
     fontSize: '4rem',
-  },
+  } as React.CSSProperties,
   postsContainer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',
     maxWidth: '800px',
-  },
+  } as React.CSSProperties,
   post: {
     margin: '1rem',
     padding: '1.5rem',
@@ -92,11 +92,11 @@ const styles = {
     transition: 'color 0.15s ease, border-color 0.15s ease',
     display: 'flex',
     flexDirection: 'column',
-  },
+  } as React.CSSProperties,
   postTitle: {
     margin: '0 0 1rem 0',
     fontSize: '1.5rem',
-  },
+  } as React.CSSProperties,
   footer: {
     flexShrink: '0',
     display: 'flex',
@@ -108,17 +108,17 @@ const styles = {
     bottom: '0',
     width: '100%',
     background: '#fff',
-  },
+  } as React.CSSProperties,
   footerLink: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     flexGrow: '1',
-  },
+  } as React.CSSProperties,
   logoContainer: {
     height: '1em',
     marginLeft: '0.2rem',
-  },
+  } as React.CSSProperties,
 };
 
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
