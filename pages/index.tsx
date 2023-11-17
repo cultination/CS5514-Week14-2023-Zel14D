@@ -60,7 +60,7 @@ const styles = {
     flexDirection: 'column',
     minHeight: '100vh',
     padding: '0 2rem',
-  },
+  } as React.CSSProperties,
   main: {
     flex: '1',
     display: 'flex',
