@@ -14,37 +14,37 @@ interface HomeProps {
 
 const Home: NextPage<HomeProps> = ({ latestPosts }) => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '0 2rem' }}>
+    <div style={styles.container}>
       <Head>
         <title>WPNext Blog</title>
         <meta name="description" content="WordPress Next.js App" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main style={{ flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: '5rem' }}>
-        <h1 style={{ margin: '0', lineHeight: '1.15', fontSize: '4rem' }}>
+      <main style={styles.main}>
+        <h1 style={styles.heading}>
           Explore the Latest Posts
         </h1>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '800px' }}>
+        <div style={styles.postsContainer}>
           {latestPosts?.map((post) => (
-            <div key={post.ID} style={{ margin: '1rem', padding: '1.5rem', textAlign: 'left', color: 'inherit', textDecoration: 'none', border: '1px solid #eaeaea', borderRadius: '10px', transition: 'color 0.15s ease, border-color 0.15s ease', display: 'flex', flexDirection: 'column' }}>
-              <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem' }}>{post.post_title}</h2>
+            <div key={post.ID} style={styles.post}>
+              <h2 style={styles.postTitle}>{post.post_title}</h2>
               <div dangerouslySetInnerHTML={{ __html: post.post_content }} />
             </div>
           ))}
         </div>
       </main>
 
-      <footer style={{ flexShrink: '0', display: 'flex', padding: '2rem 0', borderTop: '1px solid #eaeaea', justifyContent: 'center', alignItems: 'center', position: 'fixed', bottom: '0', width: '100%', background: '#fff' }}>
+      <footer style={styles.footer}>
         <a
           href="/__repl"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: '1' }}
+          style={styles.footerLink}
         >
           Built on
-          <span style={{ height: '1em', marginLeft: '0.2rem' }}>
+          <span style={styles.logoContainer}>
             <Image src="/replit.svg" alt="Replit Logo" width={20} height={18} />
           </span>
           Replit
@@ -52,6 +52,73 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
       </footer>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+    padding: '0 2rem',
+  },
+  main: {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: '5rem',
+  },
+  heading: {
+    margin: '0',
+    lineHeight: '1.15',
+    fontSize: '4rem',
+  },
+  postsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    maxWidth: '800px',
+  },
+  post: {
+    margin: '1rem',
+    padding: '1.5rem',
+    textAlign: 'left',
+    color: 'inherit',
+    textDecoration: 'none',
+    border: '1px solid #eaeaea',
+    borderRadius: '10px',
+    transition: 'color 0.15s ease, border-color 0.15s ease',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  postTitle: {
+    margin: '0 0 1rem 0',
+    fontSize: '1.5rem',
+  },
+  footer: {
+    flexShrink: '0',
+    display: 'flex',
+    padding: '2rem 0',
+    borderTop: '1px solid #eaeaea',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'fixed',
+    bottom: '0',
+    width: '100%',
+    background: '#fff',
+  },
+  footerLink: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexGrow: '1',
+  },
+  logoContainer: {
+    height: '1em',
+    marginLeft: '0.2rem',
+  },
 };
 
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
