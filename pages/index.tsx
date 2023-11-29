@@ -1,7 +1,9 @@
 import { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { useInView } from 'react-intersection-observer';
 
 interface Post {
   ID: number;
@@ -16,6 +18,19 @@ interface HomeProps {
 const Home: NextPage<HomeProps> = ({ latestPosts }) => {
   // State to track the currently displayed post
   const [currentPost, setCurrentPost] = useState<Post | null>(null);
+  // State to track whether animation should be triggered
+  const [animate, setAnimate] = useState(false);
+  // Ref to track the intersection of the trigger element
+  const { ref, inView } = useInView();
+  // Media query to check for mobile devices
+  const isMobile = useMediaQuery({ maxWidth: 767 });
+
+  // useEffect to handle animation trigger
+  useEffect(() => {
+    if (inView) {
+      setAnimate(true);
+    }
+  }, [inView]);
 
   // Function to handle post selection
   const handlePostClick = (post: Post) => {
@@ -51,7 +66,11 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
             <div style={styles.postsContainer}>
               {Array.isArray(latestPosts) ? (
                 latestPosts.map((post) => (
-                  <div key={post.ID} style={styles.post} onClick={() => handlePostClick(post)}>
+                  <div
+                    key={post.ID}
+                    style={{ ...styles.post, animation: animate ? 'fadeIn 0.5s ease-in-out' : 'none' }}
+                    onClick={() => handlePostClick(post)}
+                  >
                     <h2 style={styles.postTitle}>{post.post_title}</h2>
                   </div>
                 ))
@@ -59,30 +78,37 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
                 <p>No posts to display</p>
               )}
             </div>
+            {/* Trigger element for animation */}
+            <div ref={ref} style={styles.triggerElement}></div>
           </div>
         )}
       </main>
 
       <footer style={styles.footer}>
-        <a href="/__repl" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
-          Built on
-          <span style={styles.logoContainer}>
-            <Image src="/replit.svg" alt="Replit Logo" width={20} height={18} />
-          </span>
-          Replit
-        </a>
+        <div style={styles.footerContent}>
+          <a href="/__repl" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
+            Built on
+            <span style={styles.logoContainer}>
+              <Image src="/replit.svg" alt="Replit Logo" width={20} height={18} />
+            </span>
+            Replit
+          </a>
+        </div>
       </footer>
-    </div>
-  );
-};
+      </div>
+      );
+      };
 
-// Updated styles object with additional styling for the Back to List button
+// Updated styles object with additional styling for animation and background image
 const styles = {
   container: {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
     padding: '0 2rem',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
   } as React.CSSProperties,
   main: {
     flex: '1',
@@ -96,6 +122,7 @@ const styles = {
     margin: '0',
     lineHeight: '1.15',
     fontSize: '4rem',
+    color: '#black',
   } as React.CSSProperties,
   postsContainer: {
     display: 'flex',
@@ -108,7 +135,7 @@ const styles = {
     margin: '1rem',
     padding: '1.5rem',
     textAlign: 'left',
-    color: 'inherit',
+    color: 'black',
     textDecoration: 'none',
     border: '1px solid #eaeaea',
     borderRadius: '10px',
@@ -120,28 +147,6 @@ const styles = {
     margin: '0 0 1rem 0',
     fontSize: '1.5rem',
   } as React.CSSProperties,
-  footer: {
-    flexShrink: '0',
-    display: 'flex',
-    padding: '2rem 0',
-    borderTop: '1px solid #eaeaea',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'fixed',
-    bottom: '0',
-    width: '100%',
-    background: '#fff',
-  } as React.CSSProperties,
-  footerLink: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexGrow: '1',
-  } as React.CSSProperties,
-  logoContainer: {
-    height: '1em',
-    marginLeft: '0.2rem',
-  } as React.CSSProperties,
   backButton: {
     marginTop: '1rem',
     padding: '0.5rem 1rem',
@@ -151,6 +156,39 @@ const styles = {
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
+  } as React.CSSProperties,
+  footer: {
+    flexShrink: '0',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'fixed',
+    bottom: '0',
+    width: '100%',
+    background: 'transparent',
+  } as React.CSSProperties,
+  footerContent: {
+    padding: '2rem 0',
+    borderTop: '1px solid #eaeaea',
+  } as React.CSSProperties,
+  footerLink: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexGrow: '1',
+    color: '#00000',
+    textDecoration: 'none',
+  } as React.CSSProperties,
+  logoContainer: {
+    height: '1em',
+    marginLeft: '0.2rem',
+  } as React.CSSProperties,
+  triggerElement: {
+    width: '1px',
+    height: '1px',
+    position: 'absolute',
+    top: 0,
+    left: 0,
   } as React.CSSProperties,
 };
 
