@@ -1,6 +1,7 @@
-import type { GetStaticProps, NextPage } from 'next';
+import { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import { useState } from 'react';
 
 interface Post {
   ID: number;
@@ -13,6 +14,19 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({ latestPosts }) => {
+  // State to track the currently displayed post
+  const [currentPost, setCurrentPost] = useState<Post | null>(null);
+
+  // Function to handle post selection
+  const handlePostClick = (post: Post) => {
+    setCurrentPost(post);
+  };
+
+  // Function to handle navigating back to post list
+  const handleBackToList = () => {
+    setCurrentPost(null);
+  };
+
   return (
     <div style={styles.container}>
       <Head>
@@ -22,29 +36,35 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
       </Head>
 
       <main style={styles.main}>
-        <h1 style={styles.heading}>Explore the Latest Posts</h1>
-
-        <div style={styles.postsContainer}>
-          {Array.isArray(latestPosts) && latestPosts.length > 0 ? (
-            latestPosts.map((post) => (
-              <div key={post.ID} style={styles.post}>
-                <h2 style={styles.postTitle}>{post.post_title}</h2>
-                <div dangerouslySetInnerHTML={{ __html: post.post_content }} />
-              </div>
-            ))
-          ) : (
-            <p>No posts to display</p>
-          )}
-        </div>
+        {currentPost ? ( // If a post is selected, show detailed view
+          <div>
+            <h1 style={styles.heading}>{currentPost.post_title}</h1>
+            <div dangerouslySetInnerHTML={{ __html: currentPost.post_content }} />
+            <button onClick={handleBackToList} style={styles.backButton}>
+              Back to List
+            </button>
+          </div>
+        ) : (
+          // If no post is selected, show the list
+          <div>
+            <h1 style={styles.heading}>Explore the Latest Posts</h1>
+            <div style={styles.postsContainer}>
+              {Array.isArray(latestPosts) ? (
+                latestPosts.map((post) => (
+                  <div key={post.ID} style={styles.post} onClick={() => handlePostClick(post)}>
+                    <h2 style={styles.postTitle}>{post.post_title}</h2>
+                  </div>
+                ))
+              ) : (
+                <p>No posts to display</p>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       <footer style={styles.footer}>
-        <a
-          href="/__repl"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={styles.footerLink}
-        >
+        <a href="/__repl" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
           Built on
           <span style={styles.logoContainer}>
             <Image src="/replit.svg" alt="Replit Logo" width={20} height={18} />
@@ -56,6 +76,7 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
   );
 };
 
+// Updated styles object with additional styling for the Back to List button
 const styles = {
   container: {
     display: 'flex',
@@ -121,8 +142,19 @@ const styles = {
     height: '1em',
     marginLeft: '0.2rem',
   } as React.CSSProperties,
+  backButton: {
+    marginTop: '1rem',
+    padding: '0.5rem 1rem',
+    fontSize: '1rem',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  } as React.CSSProperties,
 };
 
+// ISR setup
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const endpointUrl = 'https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/latest-posts/1';
 
@@ -134,6 +166,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       props: {
         latestPosts,
       },
+      revalidate: 60, // Re-generate the page every 60 seconds
     };
   } catch (error) {
     console.error('Error fetching latest posts:', error);
