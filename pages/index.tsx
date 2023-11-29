@@ -22,17 +22,19 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
       </Head>
 
       <main style={styles.main}>
-        <h1 style={styles.heading}>
-          Explore the Latest Posts
-        </h1>
+        <h1 style={styles.heading}>Explore the Latest Posts</h1>
 
         <div style={styles.postsContainer}>
-          {latestPosts?.map((post) => (
-            <div key={post.ID} style={styles.post}>
-              <h2 style={styles.postTitle}>{post.post_title}</h2>
-              <div dangerouslySetInnerHTML={{ __html: post.post_content }} />
-            </div>
-          ))}
+          {Array.isArray(latestPosts) && latestPosts.length > 0 ? (
+            latestPosts.map((post) => (
+              <div key={post.ID} style={styles.post}>
+                <h2 style={styles.postTitle}>{post.post_title}</h2>
+                <div dangerouslySetInnerHTML={{ __html: post.post_content }} />
+              </div>
+            ))
+          ) : (
+            <p>No posts to display</p>
+          )}
         </div>
       </main>
 
