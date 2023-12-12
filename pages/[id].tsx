@@ -2,21 +2,22 @@ import type { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 
-interface Post {
+interface Team {
   ID: number;
-  post_title: string;
-  post_content: string;
+  team_name: string;
+  ucl_wins: number;
+  team_description: string;
 }
 
-interface PostProps {
-  post?: Post;
+interface TeamProps {
+  team?: Team;
 }
 
-const PostPage: NextPage<PostProps> = ({ post }) => {
-  if (!post) {
+const TeamPage: NextPage<TeamProps> = ({ team }) => {
+  if (!team) {
     return (
       <div>
-        <p>Post not found</p>
+        <p>Team not found</p>
       </div>
     );
   }
@@ -24,14 +25,15 @@ const PostPage: NextPage<PostProps> = ({ post }) => {
   return (
     <div>
       <Head>
-        <title>{post.post_title}</title>
-        <meta name="description" content={post.post_title} />
+        <title>{team.team_name}</title>
+        <meta name="description" content={team.team_name} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <h1>{post.post_title}</h1>
-        <div dangerouslySetInnerHTML={{ __html: post.post_content }} />
+        <h1>{team.team_name}</h1>
+        <p>UCL Wins: {team.ucl_wins}</p>
+        <p>Description: {team.team_description}</p>
       </main>
 
       <footer>
@@ -52,39 +54,63 @@ const PostPage: NextPage<PostProps> = ({ post }) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // Fetch the list of post IDs from your API
-  const endpointUrl = 'https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/special';
-  const response = await fetch(endpointUrl);
-  const posts = await response.json();
+  try {
+    // Fetch the list of all teams from your API
+    const teamsResponse = await fetch('https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/teams');
+    const teams = await teamsResponse.json();
 
-  // Generate paths for each post ID
-  const paths = posts.map((post: Post) => ({
-    params: { id: post.ID.toString() },
-  }));
+    // Generate paths for each team ID
+    const paths = teams.map((team: Team) => ({
+      params: { id: team.ID.toString() },
+    }));
 
-  return {
-    paths,
-    fallback: false,
-  };
+    return {
+      paths,
+      fallback: false,
+    };
+  } catch (error) {
+    console.error('Error fetching team paths:', error);
+
+    return {
+      paths: [],
+      fallback: false,
+    };
+  }
 };
 
-export const getStaticProps: GetStaticProps<PostProps> = async ({ params }) => {
-  if (!params || !params.id) {
+export const getStaticProps: GetStaticProps<TeamProps> = async ({ params }) => {
+  try {
+    // Fetch all teams
+    const teamsResponse = await fetch('https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/teams');
+    const teams = await teamsResponse.json();
+
+    if (!params || !params.id) {
+      return {
+        notFound: true,
+      };
+    }
+
+    // Find the specific team data based on the ID
+    const team = teams.find((t: Team) => t.ID.toString() === params.id);
+
+    if (!team) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        team,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching team data:', error);
+
     return {
       notFound: true,
     };
   }
-
-  // Fetch the specific post data based on the ID
-  const postUrl = `https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/special/${params.id}`;
-  const response = await fetch(postUrl);
-  const post = await response.json();
-
-  return {
-    props: {
-      post,
-    },
-  };
 };
 
-export default PostPage;
+export default TeamPage;

@@ -5,19 +5,20 @@ import { useState, useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { useInView } from 'react-intersection-observer';
 
-interface Post {
-  ID: number;
-  post_title: string;
-  post_content: string;
+interface Team {
+  id: number; // Updated field name
+  team_name: string;
+  ucl_wins: number;
+  team_description: string;
 }
 
 interface HomeProps {
-  latestPosts?: Post[];
+  teams?: Team[];
 }
 
-const Home: NextPage<HomeProps> = ({ latestPosts }) => {
-  // State to track the currently displayed post
-  const [currentPost, setCurrentPost] = useState<Post | null>(null);
+const Home: NextPage<HomeProps> = ({ teams }) => {
+  // State to track the currently displayed team
+  const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   // State to track whether animation should be triggered
   const [animate, setAnimate] = useState(false);
   // Ref to track the intersection of the trigger element
@@ -32,50 +33,51 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
     }
   }, [inView]);
 
-  // Function to handle post selection
-  const handlePostClick = (post: Post) => {
-    setCurrentPost(post);
+  // Function to handle team selection
+  const handleTeamClick = (team: Team) => {
+    setCurrentTeam(team);
   };
 
-  // Function to handle navigating back to post list
+  // Function to handle navigating back to team list
   const handleBackToList = () => {
-    setCurrentPost(null);
+    setCurrentTeam(null);
   };
 
   return (
     <div style={styles.container}>
       <Head>
-        <title>WPNext Blog</title>
-        <meta name="description" content="WordPress Next.js App" />
+        <title>Top UCL Teams</title>
+        <meta name="description" content="Top UCL Teams" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main style={styles.main}>
-        {currentPost ? ( // If a post is selected, show detailed view
+        {currentTeam ? ( // If a team is selected, show detailed view
           <div>
-            <h1 style={styles.heading}>{currentPost.post_title}</h1>
-            <div dangerouslySetInnerHTML={{ __html: currentPost.post_content }} />
+            <h1 style={styles.heading}>{currentTeam.team_name}</h1>
+            <p>UEFA Champions League Wins: {currentTeam.ucl_wins}</p>
+            <p>Description: {currentTeam.team_description}</p>
             <button onClick={handleBackToList} style={styles.backButton}>
               Back to List
             </button>
           </div>
         ) : (
-          // If no post is selected, show the list
+          // If no team is selected, show the list
           <div>
-            <h1 style={styles.heading}>Explore the Latest Posts</h1>
-            <div style={styles.postsContainer}>
-              {Array.isArray(latestPosts) ? (
-                latestPosts.map((post) => (
+            <h1 style={styles.heading}>Top UCL Teams</h1>
+            <div style={styles.teamsContainer}>
+              {Array.isArray(teams) ? (
+                teams.map((team) => (
                   <div
-                    key={post.ID}
-                    style={{ ...styles.post, animation: animate ? 'fadeIn 0.5s ease-in-out' : 'none' }}
-                    onClick={() => handlePostClick(post)}
+                    key={team.id} // Updated field name
+                    style={{ ...styles.team, animation: animate ? 'fadeIn 0.5s ease-in-out' : 'none' }}
+                    onClick={() => handleTeamClick(team)}
                   >
-                    <h2 style={styles.postTitle}>{post.post_title}</h2>
+                    <h2 style={styles.teamName}>{team.team_name}</h2>
                   </div>
                 ))
               ) : (
-                <p>No posts to display</p>
+                <p>No teams to display</p>
               )}
             </div>
             {/* Trigger element for animation */}
@@ -95,9 +97,9 @@ const Home: NextPage<HomeProps> = ({ latestPosts }) => {
           </a>
         </div>
       </footer>
-      </div>
-      );
-      };
+    </div>
+  );
+};
 
 // Updated styles object with additional styling for animation and background image
 const styles = {
@@ -124,14 +126,14 @@ const styles = {
     fontSize: '4rem',
     color: '#black',
   } as React.CSSProperties,
-  postsContainer: {
+  teamsContainer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',
     maxWidth: '800px',
   } as React.CSSProperties,
-  post: {
+  team: {
     margin: '1rem',
     padding: '1.5rem',
     textAlign: 'left',
@@ -143,7 +145,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
   } as React.CSSProperties,
-  postTitle: {
+  teamName: {
     margin: '0 0 1rem 0',
     fontSize: '1.5rem',
   } as React.CSSProperties,
@@ -194,23 +196,23 @@ const styles = {
 
 // ISR setup
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
-  const endpointUrl = 'https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/latest-posts/1';
+  const endpointUrl = 'https://dev-site4school.pantheonsite.io/wp-json/twentytwentyone-child/v1/teams';
 
   try {
     const response = await fetch(endpointUrl);
-    const latestPosts = await response.json();
+    const teams = await response.json();
 
     return {
       props: {
-        latestPosts,
+        teams,
       },
       revalidate: 60, // Re-generate the page every 60 seconds
     };
   } catch (error) {
-    console.error('Error fetching latest posts:', error);
+    console.error('Error fetching teams:', error);
     return {
       props: {
-        latestPosts: [],
+        teams: [],
       },
     };
   }
